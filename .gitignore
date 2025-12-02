@@ -1,0 +1,70 @@
+## Visual Studio ##
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results ##
+bin/
+obj/
+out/
+Debug/
+Release/
+
+## Visual Studio Code ##
+.vscode/
+
+## C# specific ##
+*.dll
+*.exe
+*.pdb
+*.cache
+*.config
+*.mdb
+
+## Logs ##
+*.log
+
+## OS-specific ##
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+## Python toolchains (Lean sometimes generates Py files) ##
+__pycache__/
+*.pyc
+
+## Lean / QuantConnect ##
+data/
+errors/
+results/
+launcher-debug/
+config.json  # local config only
+*.backtest
+*.json.tmp
+
+## Docker ##
+*.pid
+docker-compose.override.yml
+
+## JetBrains Rider ##
+.idea/
+
+## Packages ##
+packages/
+*.nupkg
+
+## Temporary files ##
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+## vs
+.vs/

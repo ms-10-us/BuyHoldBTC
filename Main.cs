@@ -4,12 +4,21 @@ using QuantConnect.Data;
 #endregion
 namespace QuantConnect.Algorithm.CSharp
 {
-    public class WellDressedTanOwlet : QCAlgorithm
+    /*
+     This is my custom crypto template
+     */
+    public class MyCustomCryptoTemplate : QCAlgorithm
     {
-        private string _ticker = "BTCUSD";
+        //UserVariables
+        private string _ticker = "BTCUSD"; //virtual pai - tacks the current USD value of 1 BTC
         private int _startingCash = 1000;
         private decimal _weight = 0.5m;
         private CoinbaseBrokerageModel _coinBaseBrokerageModel = new CoinbaseBrokerageModel(AccountType.Cash);
+
+        //ProgramVariables
+        public decimal _price;
+        public decimal _holding; //number of BTCs that we hold in portfolio
+        public string _baseSymbol; // "BTC"
 
         public override void Initialize()
         {
@@ -17,7 +26,9 @@ namespace QuantConnect.Algorithm.CSharp
             SetEndDate(2018, 1, 1);
             SetCash(_startingCash);
 
-            AddCrypto(_ticker, Resolution.Minute);
+            var _crypto = AddCrypto(_ticker, Resolution.Minute);
+            _baseSymbol = _crypto.BaseCurrency.ToString();
+
             SetBrokerageModel(_coinBaseBrokerageModel);
         }
 
@@ -25,6 +36,8 @@ namespace QuantConnect.Algorithm.CSharp
         /// Slice object keyed by symbol containing the stock data
         public override void OnData(Slice data)
         {
+            _price = data[_ticker].Price;
+
             if (!Portfolio.Invested)
             {
                 SetHoldings(_ticker, _weight);

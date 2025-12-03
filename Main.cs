@@ -11,14 +11,19 @@ namespace QuantConnect.Algorithm.CSharp
     {
         //UserVariables
         private string _ticker = "BTCUSD"; //virtual pai - tacks the current USD value of 1 BTC
+        private string _baseSymbol = "BTC";
         private int _startingCash = 1000;
         private decimal _weight = 0.5m;
         private CoinbaseBrokerageModel _coinBaseBrokerageModel = new CoinbaseBrokerageModel(AccountType.Cash);
+        private decimal _targetPrecent = 0.10m; // = +10% sell at that price increase
+        private decimal _stopPercent = 0.02m; // = -2% sell at that pricedecrease to minimize losses
 
         //ProgramVariables
         public decimal _price;
         public decimal _holding; //number of BTCs that we hold in portfolio
-        public string _baseSymbol; // "BTC"
+        public decimal _targetPrice;
+        public decimal _stopPrice;
+
 
         public override void Initialize()
         {
@@ -26,8 +31,8 @@ namespace QuantConnect.Algorithm.CSharp
             SetEndDate(2018, 1, 1);
             SetCash(_startingCash);
 
-            var _crypto = AddCrypto(_ticker, Resolution.Minute);
-            _baseSymbol = _crypto.BaseCurrency.ToString();
+            AddCrypto(_ticker, Resolution.Minute);
+
 
             SetBrokerageModel(_coinBaseBrokerageModel);
         }
@@ -41,7 +46,27 @@ namespace QuantConnect.Algorithm.CSharp
             if (!Portfolio.Invested)
             {
                 SetHoldings(_ticker, _weight);
+                Log($"Purchased {_ticker} at {_price}");
 
+                _targetPrice = _price + (_price * _targetPrecent);
+                _stopPrice = _price - (_price * _stopPercent);
+            }
+
+            if (Portfolio.Invested)
+            {
+                _holding = Portfolio.CashBook[_baseSymbol].Amount;
+
+                if (_price >= _targetPrice)
+                {
+                    Sell(_ticker, _holding);
+                    Log($"Sold {_ticker} at {_price}");
+                }
+
+                if (_price < _stopPrice)
+                {
+                    Sell(_ticker, _holding);
+                    Log($"Sold {_ticker} at {_price}");
+                }
             }
         }
 

@@ -1,6 +1,8 @@
 #region imports
 using QuantConnect.Brokerages;
 using QuantConnect.Data;
+using QuantConnect.Orders;
+using System;
 #endregion
 namespace QuantConnect.Algorithm.CSharp
 {
@@ -17,6 +19,7 @@ namespace QuantConnect.Algorithm.CSharp
         private CoinbaseBrokerageModel _coinBaseBrokerageModel = new CoinbaseBrokerageModel(AccountType.Cash);
         private decimal _targetPrecent = 0.10m; // = +10% sell at that price increase
         private decimal _stopPercent = 0.02m; // = -2% sell at that pricedecrease to minimize losses
+        private decimal _trailPercent = 0.03m;
 
         //ProgramVariables
         public decimal _price;
@@ -43,31 +46,32 @@ namespace QuantConnect.Algorithm.CSharp
         {
             _price = data[_ticker].Price;
 
+
+
             if (!Portfolio.Invested)
             {
                 SetHoldings(_ticker, _weight);
                 Log($"Purchased {_ticker} at {_price}");
 
-                _targetPrice = _price + (_price * _targetPrecent);
-                _stopPrice = _price - (_price * _stopPercent);
+                _stopPrice = _price - (_price * _trailPercent);
+
             }
+
+            _stopPrice = Math.Max(_price - (_price * _trailPercent), _stopPrice);
 
             if (Portfolio.Invested)
             {
                 _holding = Portfolio.CashBook[_baseSymbol].Amount;
-
-                if (_price >= _targetPrice)
-                {
-                    Sell(_ticker, _holding);
-                    Log($"Sold {_ticker} at {_price}");
-                }
-
                 if (_price < _stopPrice)
                 {
                     Sell(_ticker, _holding);
-                    Log($"Sold {_ticker} at {_price}");
                 }
             }
+        }
+
+        public override void OnOrderEvent(OrderEvent orderEvent)
+        {
+            Log(orderEvent.ToString());
         }
 
     }
